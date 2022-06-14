@@ -1,0 +1,9 @@
+{
+    "img_width": 64,
+    "img_height": 64,
+    "screen_width": 400,
+    "screen_height": 400,
+    "reference_img": "references/kitty.png",
+    "display": true,
+    "verbose": true
+}
