@@ -15,3 +15,4 @@ To change some of the parameters of the program, a configuration file is provide
 
 I got the idea from https://github.com/antirez/shapeme and I have plans to implement this with triangles in the same way as well.
 
+To test this program run the "genImg.py" script and you should see a black window, it should slowly turn into the image "Pepe.png"

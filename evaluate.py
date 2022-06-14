@@ -39,7 +39,7 @@ def fitness_img(img_approx, reference_img):
 def fitness(img_approx):
     if config['display']:
         img_approx.render()
-    p = 0.5
-    return (1-p)*fitness_img(img_approx, reference_img1) + p*fitness_img(img_approx, reference_img2)
+    p = 0.25
+    #return (1-p)*fitness_img(img_approx, reference_img1) - p*fitness_img(img_approx, reference_img2)
     #return -fitness_color_entropy(img_approx)
-    #return fitness_img(img_approx)
+    return fitness_img(img_approx, reference_img1)
