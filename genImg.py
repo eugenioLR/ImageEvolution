@@ -76,7 +76,8 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
     j = 0
 
     steps = generate_iter(1000, 6000, temp_end, coef)
-    print(steps.sum())
+    if config['verbose']:
+        print("number of steps:", steps.sum())
 
     clock = pygame.time.Clock()
 
@@ -127,6 +128,4 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
     shapeLst.save_to_image()
 
 if __name__ == '__main__':
-    #iter = iterations(100, 500, 2, 1, 0.00071)
     simulated_annealing()
-    #oneplusone(200000)

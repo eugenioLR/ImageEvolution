@@ -4,3 +4,4 @@ saved_models
 saved_models/*
 *.zip
 results/*
+result.png

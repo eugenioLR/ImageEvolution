@@ -18,9 +18,10 @@ sizeY = config['img_height']
 w_width = config['screen_width']
 w_height = config['screen_height']
 
-pygame.init()
-src = pygame.display.set_mode([w_width, w_height])
-pygame.display.set_caption("Evo graphics")
+if config['display']:
+    pygame.init()
+    src = pygame.display.set_mode([w_width, w_height])
+    pygame.display.set_caption("Evo graphics")
 
 def clamp_arr(a, minim, maxim):
     return np.minimum(np.maximum(a, minim), maxim)
@@ -54,8 +55,8 @@ class ImgApprox:
         pass
 
     def save_to_image(self):
-        self.render()
-        pygame.image.save(src, "result.png")
+        Image.fromarray(self.data.astype(np.uint8)).save("result.png")
+
 
 class PixelImage(ImgApprox):
     def __init__(self):
