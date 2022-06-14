@@ -5,6 +5,7 @@
     "screen_height": 400,
     "reference_img1": "references/Pepe.png",
     "reference_img2": "references/Beagle.jpg",
+    "img_init": "black",
     "display": true,
     "verbose": true
 }

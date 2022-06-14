@@ -1,10 +1,11 @@
+!.gitignore
+__pycache__
+results/*
 model
 model/*
 saved_models
 saved_models/*
-*.zip
-!.gitignore
 *.png
-results/*
+*.zip
 !references/*
-__pycache__
+
