@@ -21,10 +21,10 @@ def iterations(min_v, max_v, inc, change, temp_end, coef=0.93):
     return arr
 
 def oneplusone(n_iter, mut_str = 0.01):
-    #shapeLst = ShapeList(init_n=1)
-    shapeLst = PixelImage()
+    #current_img = ShapeList(init_n=1)
+    current_img = PixelImage()
 
-    fit = fitness(shapeLst)
+    fit = fitness(current_img)
 
     j = 0
 
@@ -41,17 +41,17 @@ def oneplusone(n_iter, mut_str = 0.01):
         # mutate
         mut_str = lerp(i/n_iter, 0.005, 0.02)
         accept = lerp(i/n_iter, 0.006, 0.00001)
-        aux = shapeLst.clone()
+        aux = current_img.clone()
         aux.mutate(mut_str)
 
         # new fitness
         fit_aux = fitness(aux)
 
         if fit_aux <= fit:
-            shapeLst = aux
+            current_img = aux
             fit = fit_aux
         elif random.random() <= accept:
-            shapeLst = aux
+            current_img = aux
             fit = fit_aux
         pygame.display.update()
         
@@ -59,8 +59,8 @@ def oneplusone(n_iter, mut_str = 0.01):
         j += 1
         if j%500 == 0 and config['verbose']:
             print(f"iteration {j}: {fit}")
-    shapeLst.render()
-    shapeLst.save_to_image()
+    current_img.render()
+    current_img.save_to_image()
 
 
 def generate_iter(min_v, max_v, temp_fin, coef=0.93):
@@ -68,10 +68,10 @@ def generate_iter(min_v, max_v, temp_fin, coef=0.93):
     return np.linspace(min_v, max_v, n_iter).astype(np.int32)
 
 def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.001], coef=0.93):
-    #shapeLst = ShapeList(init_n=1)
-    shapeLst = PixelImage()
+    #current_img = ShapeList(init_n=1)
+    current_img = PixelImage()
 
-    fit = fitness(shapeLst)
+    fit = fitness(current_img)
 
     j = 0
 
@@ -79,7 +79,8 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
     if config['verbose']:
         print("number of steps:", steps.sum())
 
-    clock = pygame.time.Clock()
+    if config['display']:
+        clock = pygame.time.Clock()
 
     n_steps = 0
     i_temp = 0
@@ -92,16 +93,16 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
             print("temp change:", i_temp, "of", len(steps))
         
         for i in range(j):
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                    exit(0)
-            
             if config['display']:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                        current_img.save_to_image("stopped_gen"+str(n_steps)+".png")
+                        exit(0)
                 src.fill('#000000')
             
             # mutate
-            aux = shapeLst.clone()
+            aux = current_img.clone()
             aux.mutate(mut_str)
 
             # new fitness
@@ -110,22 +111,25 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
             delta = -(fit-fit_aux)*100
             #delta = (fit-fit_aux)*7500
             if delta <= 0:
-                shapeLst = aux
+                current_img = aux
                 fit = fit_aux
             elif random.random() <= math.exp(-delta/temp):
-                shapeLst = aux
+                current_img = aux
                 fit = fit_aux
-            pygame.display.update()
+            
+            if config['display']:
+                aux.render()
+                pygame.display.update()
             
             j += 1
             if n_steps%500 == 0 and config['verbose']:
                 print(f"{n_steps}: {fit}")
             n_steps += 1
+
         temp = temp*coef
         i_temp += 1
-        
-    shapeLst.render()
-    shapeLst.save_to_image()
+
+    current_img.save_to_image()
 
 if __name__ == '__main__':
     simulated_annealing()

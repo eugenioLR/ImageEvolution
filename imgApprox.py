@@ -18,6 +18,7 @@ sizeY = config['img_height']
 w_width = config['screen_width']
 w_height = config['screen_height']
 
+src = None
 if config['display']:
     pygame.init()
     src = pygame.display.set_mode([w_width, w_height])
@@ -54,16 +55,22 @@ class ImgApprox:
     def img_array(self):
         pass
 
-    def save_to_image(self):
-        Image.fromarray(self.data.astype(np.uint8)).save("result.png")
+    def save_to_image(self, filename="result.png"):
+        Image.fromarray(self.data.astype(np.uint8).transpose([1,0,2])).save(filename)
 
 
 class PixelImage(ImgApprox):
     def __init__(self):
-        self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
-        #self.data = (np.ones([sizeX, sizeY, 3])*255).astype(np.uint8)
-        #self.data = (np.random.random([sizeX, sizeY, 3])*255).astype(np.float64)
-        #self.data = np.asarray(Image.open("references/kitty.png").resize([sizeX, sizeY]))[:,:,:3].transpose([1,0,2]).astype(np.uint32)
+        img_init = config['img_init']
+
+        if img_init == 'black':
+            self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
+        elif img_init == 'white':
+            self.data = (np.ones([sizeX, sizeY, 3])*255).astype(np.float64)
+        elif img_init == 'random':
+            self.data = (np.random.random([sizeX, sizeY, 3])*255).astype(np.float64)
+        else:
+            self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
     
     def mutate_noise(self, strength):
         noise = np.random.normal(0, strength, [sizeX, sizeY, 3]) * 255
