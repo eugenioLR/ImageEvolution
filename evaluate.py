@@ -7,8 +7,11 @@ from copy import deepcopy
 from PIL import Image
 from imgApprox import ImgApprox, sizeX, sizeY, config, lerp_arr
 
-reference_img = Image.open(config['reference_img'])
-reference_img = np.asarray(reference_img.resize([sizeX, sizeY]))[:,:,:3].transpose([1,0,2]).astype(np.uint32)
+reference_img1 = Image.open(config['reference_img1'])
+reference_img1 = np.asarray(reference_img1.resize([sizeX, sizeY]))[:,:,:3].transpose([1,0,2]).astype(np.uint32)
+
+reference_img2 = Image.open(config['reference_img2'])
+reference_img2 = np.asarray(reference_img2.resize([sizeX, sizeY]))[:,:,:3].transpose([1,0,2]).astype(np.uint32)
 
 def img_std_dev(arr):
     return (arr**2).mean() - arr.mean()**2
@@ -27,17 +30,16 @@ def entropy(arr):
 
 def fitness_color_entropy(img_approx):
     arr = img_approx.img_array()
-    arr_hsv = cv2.cvtColor(arr.astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.float64)
     return entropy(arr)/10
 
-def fitness_img(img_approx):
+def fitness_img(img_approx, reference_img):
     arr = img_approx.img_array()
     return np.sqrt( ((arr-reference_img)**2).sum(axis=2) ).sum()/(sizeX*sizeY*442)*100
 
 def fitness(img_approx):
     if config['display']:
         img_approx.render()
-    p = 0.01
-    #return (1-p)*fitness_img(img_approx) + p*fitness_color_entropy(img_approx)
-    return -fitness_color_entropy(img_approx)
+    p = 0.5
+    return (1-p)*fitness_img(img_approx, reference_img1) + p*fitness_img(img_approx, reference_img2)
+    #return -fitness_color_entropy(img_approx)
     #return fitness_img(img_approx)
