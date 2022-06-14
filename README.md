@@ -11,3 +11,7 @@ To change some of the parameters of the program, a configuration file is provide
 - reference_img: path to a reference image, preferably located in "./references".
 - display: show the current progress.
 - verbose: show aditional information on the console.
+
+
+I got the idea from https://github.com/antirez/shapeme and I have plans to implement this with triangles in the same way as well.
+
