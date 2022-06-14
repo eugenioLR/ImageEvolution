@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 from copy import deepcopy
 from PIL import Image
-from imgApprox import ImgApprox, sizeX, sizeY, config, lerp_arr
+from imgApprox import *
 
 reference_img1 = Image.open(config['reference_img1'])
 reference_img1 = np.asarray(reference_img1.resize([sizeX, sizeY]))[:,:,:3].transpose([1,0,2]).astype(np.uint32)

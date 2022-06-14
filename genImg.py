@@ -68,8 +68,8 @@ def generate_iter(min_v, max_v, temp_fin, coef=0.93):
     return np.linspace(min_v, max_v, n_iter).astype(np.int32)
 
 def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.001], coef=0.93):
-    #current_img = ShapeList(init_n=1)
-    current_img = PixelImage()
+    current_img = ShapeList(init_n=4)
+    #current_img = PixelImage()
 
     fit = fitness(current_img)
 
@@ -108,7 +108,8 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
             # new fitness
             fit_aux = fitness(aux)
 
-            delta = -(fit-fit_aux)*100
+            #delta = -(fit-fit_aux)*100
+            delta = -(fit-fit_aux)*7500
             #delta = (fit-fit_aux)*7500
             if delta <= 0:
                 current_img = aux

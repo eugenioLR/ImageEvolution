@@ -7,3 +7,4 @@ saved_models/*
 *.png
 results/*
 !references/*
+__pycache__
