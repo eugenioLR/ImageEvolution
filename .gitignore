@@ -3,5 +3,7 @@ model/*
 saved_models
 saved_models/*
 *.zip
+!.gitignore
+*.png
 results/*
-result.png
+!references/*
