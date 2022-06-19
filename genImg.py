@@ -69,6 +69,88 @@ def oneplusone(n_iter=300000, mut_str_range = [0.01, 0.001]):
     current_img.save_to_image()
 
 
+def step_generation(generation, gen_n):
+    fits = [fitness(i) for i in generation]
+
+    for i in range(gen_n):
+        idx = fits.index(min(fits))
+        fits.pop(idx)
+        generation.pop(idx)
+    
+    idx = fits.index(max(fits))
+    generation = [generation[idx]] + generation[:idx] + generation[idx+1:]
+
+    return generation
+
+
+
+def genetic_alg(gen_n=3000, popul_size=100, mut_prob=0.1, mut_str_range=[0.01, 0.001]):
+    fit_history = np.zeros(gen_n)
+
+    current_gen = []
+    if config['method'] == 'triangles':
+        current_img = ShapeList(init_n=1)
+    elif config['method'] == 'pixels':
+        current_gen  = [PixelImage(img_init='random') for i in range(popul_size//3)]
+        current_gen += [PixelImage(img_init='black') for i in range(popul_size//3)]
+        current_gen += [PixelImage(img_init='white') for i in range(popul_size - (2*popul_size)//3)]
+    else:
+        current_gen = [PixelImage() for i in range(popul_size)]
+        for i in current_gen:
+            i.mutate_noise(1)
+            i.mutate(1)
+    
+    for i in range(gen_n):
+        # process GUI events and reset screen
+        if config['display']:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    current_gen[0].save_to_image(i)
+                    exit(0)
+            src.fill('#000000')
+
+        mut_str = lerp(1-(i/gen_n), mut_str_range[1], mut_str_range[0])
+
+
+        next_gen = []
+        while len(next_gen) <= popul_size:
+            parent1 = random.choice(current_gen)
+            parent2 = random.choice(current_gen)
+
+            (new_ind1, new_ind2) = parent1.cross(parent2)
+
+            if random.random() <= mut_prob:
+                new_ind1.mutate(mut_str)
+            
+            if random.random() <= mut_prob:
+                new_ind2.mutate(mut_str)
+            
+            next_gen += [new_ind1, new_ind2]
+        
+        current_gen = step_generation(current_gen+next_gen, popul_size)
+        
+        fit = fitness(current_gen[0])
+
+        # display the current image
+        if config['display']:
+            current_gen[0].render()
+            pygame.display.update()
+        
+        # show info about the fitness
+        if config['verbose']:
+            if i%10 == 0:
+                print(f"{i}: {fit}")
+            fit_history[i] = fit
+    
+    if config['verbose']:
+        plt.plot(fit_history)
+        plt.show()
+    
+    current_gen[0].save_to_image()
+    
+
+
 def generate_iter(min_v, max_v, temp_fin, coef=0.93):
     n_iter = int(math.ceil(math.log(temp_fin, coef)))
     return np.linspace(min_v, max_v, n_iter).astype(np.int32)
@@ -163,8 +245,10 @@ if __name__ == '__main__':
     alg = config['algorithm']
 
     if alg == 'one_plus_one':
-        oneplusone(3000000)
+        oneplusone(300000, [0.005, 0.0001])
     elif alg == 'sim_annealing':
         simulated_annealing(1, 0.00071, [0.01, 0.001], 0.93)
+    elif alg == 'genetic':
+        genetic_alg(1500, 200, 0.1, [0.01, 0.001])
     else:
         simulated_annealing(1, 0.00071, [0.01, 0.001], 0.93)

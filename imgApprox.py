@@ -47,6 +47,9 @@ class ImgApprox:
     def update(self, step):
         pass
 
+    def cross(self, img_approx):
+        pass
+
     def mutate(self, strength):
         pass
 
@@ -72,18 +75,47 @@ class ImgApprox:
 
 
 class PixelImage(ImgApprox):
-    def __init__(self):
-        img_init = config['img_init']
+    def __init__(self, data = None, img_init=None):
+        if img_init is None:
+            img_init = config['img_init']
+            
 
-        if img_init == 'black':
-            self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
-        elif img_init == 'white':
-            self.data = (np.ones([sizeX, sizeY, 3])*255).astype(np.float64)
-        elif img_init == 'random':
-            self.data = (np.random.random([sizeX, sizeY, 3])*255).astype(np.float64)
+        if data is None:
+            if img_init == 'black':
+                self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
+            elif img_init == 'white':
+                self.data = (np.ones([sizeX, sizeY, 3])*255).astype(np.float64)
+            elif img_init == 'random':
+                self.data = (np.random.random([sizeX, sizeY, 3])*255).astype(np.float64)
+            else:
+                self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
         else:
-            self.data = (np.zeros([sizeX, sizeY, 3])).astype(np.float64)
+            self.data = data
     
+    def update(self, step):
+        pass
+
+    def cross(self, img_approx):
+        block_sizeX = random.randint(1, sizeX/2)
+        block_sizeY = random.randint(1, sizeY/2)
+
+        # generate mask
+        mask_small = np.random.rand(sizeX//block_sizeX+1, sizeY//block_sizeY+1, 3) < 0.5
+        mask = np.zeros([sizeX, sizeY, 3])
+        for i in range(3):
+            mask_expand = np.kron(mask_small[:,:,i], np.ones([block_sizeX, block_sizeY]))
+            mask_expand = np.roll(mask_expand, -random.randint(0, block_sizeX), axis=0)
+            mask_expand = np.roll(mask_expand, -random.randint(0, block_sizeY), axis=1)
+            mask[:, :, i] = mask_expand[:sizeX, :sizeY]
+    
+        # get half of the image from each parent
+        other_data = img_approx.img_array()
+        new_data1 = (1-mask)*other_data + mask*self.data
+        new_data2 = (mask)*other_data + (1-mask)*self.data
+
+        return (PixelImage(new_data1), PixelImage(new_data2))
+
+
     def mutate_noise(self, strength):
         noise = np.random.normal(0, strength, [sizeX, sizeY, 3]) * 255
         mask = np.random.random([sizeX, sizeY, 3]) < lerp(random.random(), strength*0.1, strength*10)
@@ -91,15 +123,17 @@ class PixelImage(ImgApprox):
         self.data = clamp_arr(self.data + noise, 0, 255)
     
     def mutate_noise_blocks(self, strength):
-        dim = max(sizeX, sizeY)
-        block_size = random.randint(1, dim)
+        block_sizeX = random.randint(1, sizeX)
+        block_sizeY = random.randint(1, sizeY)
         
-        noise = np.ones([(dim//block_size + 1)*block_size, (dim//block_size + 1)*block_size, 3])
-        noise_blocks = np.random.normal(0, strength, [dim//block_size+1, dim//block_size+1, 3]) * 255
+        noise = np.ones([(sizeX//block_sizeX + 1)*block_sizeX, (sizeX//block_sizeY + 1)*block_sizeY, 3])
+        noise_blocks = np.random.normal(0, strength, [sizeX//block_sizeX+1, sizeY//block_sizeY+1, 3]) * 255
         for i in range(3):
-            mask = np.random.random([block_size, block_size]) < strength*40
+            mask = np.random.random([block_sizeX, block_sizeY]) < strength*40
+            #mask = np.ones([block_sizeX, block_sizeY])
             noise[:,:,i] = np.kron(noise_blocks[:,:,i], mask)
-            noise[:,:,i] = np.roll(noise[:,:,i], -random.randint(0, block_size))
+            noise[:,:,i] = np.roll(noise[:,:,i], -random.randint(0, block_sizeX), axis=0)
+            noise[:,:,i] = np.roll(noise[:,:,i], -random.randint(0, block_sizeY), axis=1)
         noise = noise[:sizeX, :sizeY, :]
         self.data = clamp_arr(self.data + noise, 0, 255)
     
@@ -152,5 +186,4 @@ class PixelImage(ImgApprox):
     def img_array(self):
         return self.data
     
-    def update(self, step):
-        pass
+    

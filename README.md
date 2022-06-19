@@ -18,6 +18,10 @@ To change some of the parameters of the program, a configuration file is provide
 - method: method used in the evolutionary algorithm, options are:
   - pixels
   - triangles
+- algorithm: evolutionary algorithm used, options are:
+  - one_plus_one
+  - sim_annealing
+  - genetic
 
 I got the idea from https://github.com/antirez/shapeme and I have plans to implement this with triangles in the same way as well.
 

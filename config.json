@@ -3,11 +3,11 @@
     "img_height": 64,
     "screen_width": 600,
     "screen_height": 600,
-    "reference_img1": "references/cat.jpg",
+    "reference_img1": "references/Pepe.png",
     "reference_img2": "references/Beagle_mirror.jpg",
     "img_init": "black",
     "display": true,
     "verbose": true,
     "method": "pixels",
-    "algorithm": "sim_annealing"
+    "algorithm": "one_plus_one"
 }
