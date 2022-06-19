@@ -14,7 +14,7 @@ reference_img2 = Image.open(config['reference_img2'])
 reference_img2 = np.asarray(reference_img2.resize([sizeX, sizeY]))[:,:,:3].transpose([1,0,2]).astype(np.uint32)
 
 def img_std_dev(arr):
-    return (arr**2).mean() - arr.mean()**2
+    return np.sqrt((arr**2).mean() - arr.mean()**2)
 
 def diff_med(arr):
     return np.abs(2*arr - arr.mean()).mean()
@@ -34,10 +34,12 @@ def fitness_color_entropy(img_approx):
 
 def fitness_img(img_approx, reference_img):
     arr = img_approx.img_array()
-    return np.sqrt( ((arr-reference_img)**2).sum(axis=2) ).sum()/(sizeX*sizeY*442)*100
+    dist = np.sqrt(((arr-reference_img)**2).sum(axis=2)).sum()
+    # the distance between a black and a white image is of 441.6729...
+    return 1-dist/(sizeX*sizeY*441.6729)
 
 def fitness(img_approx):
     p = 0.25
-    #return (1-p)*fitness_img(img_approx, reference_img1) - p*fitness_img(img_approx, reference_img2)
+    return (1-p)*fitness_img(img_approx, reference_img1) + p*fitness_img(img_approx, reference_img2)
     #return -fitness_color_entropy(img_approx)
-    return fitness_img(img_approx, reference_img1)
+    #return fitness_img(img_approx, reference_img1)

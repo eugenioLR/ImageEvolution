@@ -92,7 +92,7 @@ class PixelImage(ImgApprox):
         self.data = clamp_arr(self.data + noise, 0, 255)
     
     def smoothen(self, strength):
-        s = lerp(strength, 0, 0.0009)
+        s = lerp(strength, 0, 0.0003)
         w = s
         w_c = math.sqrt(2) * s
         g_filt = np.array([[w_c,w,w_c],[w,1,w],[w_c,w,w_c]])
@@ -101,7 +101,7 @@ class PixelImage(ImgApprox):
             self.data[:,:,i] = cv2.filter2D(self.data[:,:,i], -1, g_filt)
 
     def inc_contrast(self, strength):
-        thresh = lerp(strength, 0, 7)
+        thresh = lerp(strength, 0, 15)
         alpha = 1 + 2*thresh/255
         beta = -thresh
         for i in range(3):
@@ -109,8 +109,6 @@ class PixelImage(ImgApprox):
 
 
     def mutate(self, strength):
-        thresh = 1 - 0.075 * strength
-        #thresh = 0.5
 
         #if random.random() <= thresh:
         #    if random.random() <= 0.6:
@@ -123,15 +121,16 @@ class PixelImage(ImgApprox):
         #    else:
         #        self.inc_contrast()
         
-        #decision = random.random()
-        #if decision >= 2/3:
-        #    self.mutate_noise_blocks(strength)
-        #elif decision >= 1/3:
-        #    self.smoothen(strength)
-        #else:
-        #    self.inc_contrast(strength)
+        decision = random.random()
+        thresh = [2/4, 1/4]
+        if decision >= thresh[0]:
+            self.mutate_noise_blocks(strength)
+        elif decision >= thresh[1]:
+            self.smoothen(strength)
+        else:
+            self.inc_contrast(strength)
 
-        self.mutate_noise_blocks(strength)
+        #self.mutate_noise_blocks(strength)
 
     def render(self):
         texture = cv2.resize(self.data.astype(np.uint8), [w_height, w_width], interpolation = cv2.INTER_NEAREST)

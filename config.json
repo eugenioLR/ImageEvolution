@@ -1,10 +1,12 @@
 {
     "img_width": 64,
     "img_height": 64,
-    "screen_width": 400,
-    "screen_height": 400,
+    "screen_width": 600,
+    "screen_height": 600,
     "reference_img1": "references/Pepe.png",
-    "reference_img2": "references/Beagle.jpg",
+    "reference_img2": "references/Beagle_mirror.jpg",
+    "img_init": "black",
     "display": true,
-    "verbose": true
+    "verbose": true,
+    "method": "triangles"
 }
