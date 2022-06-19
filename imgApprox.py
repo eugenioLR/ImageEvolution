@@ -5,6 +5,7 @@ import numpy as np
 import math
 import cv2
 import json
+import os
 from copy import deepcopy
 from PIL import Image
 
@@ -55,7 +56,18 @@ class ImgApprox:
     def img_array(self):
         pass
 
-    def save_to_image(self, filename="result.png"):
+    def save_to_image(self, iter = None):
+        if not os.path.exists('results'):
+            os.makedirs('results')
+        
+        pathname = config['reference_img1']
+        name = pathname.split('.')[0].split('/')[-1]
+        alg = config['algorithm']
+        if not iter is None:
+            alg += '_stop' + str(iter)
+        
+        filename = 'results/' + name + '_' + alg + '.png'
+        
         Image.fromarray(self.data.astype(np.uint8).transpose([1,0,2])).save(filename)
 
 

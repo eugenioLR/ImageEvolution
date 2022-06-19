@@ -11,46 +11,61 @@ from shapeList import src
 from shapeList import ShapeList, Triangle
 from imgApprox import ImgApprox, PixelImage, lerp, clamp, config
 
-def oneplusone(n_iter, mut_str = 0.01):
-    #current_img = ShapeList(init_n=1)
-    current_img = PixelImage()
+def oneplusone(n_iter=300000, mut_str_range = [0.01, 0.001]):
+    # choose the method used
+    if config['method'] == 'triangles':
+        current_img = ShapeList(init_n=1)
+    elif config['method'] == 'pixels':
+        current_img = PixelImage()
+    else:
+        current_img = PixelImage()
+
+    if config['verbose']:
+        fit_history = np.zeros(n_iter)
+        print("number of steps:", n_iter)
 
     fit = fitness(current_img)
-
-    j = 0
-
-    clock = pygame.time.Clock()
     for i in range(n_iter):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                exit(0)
-        
+        # process GUI events and reset screen
         if config['display']:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    current_img.save_to_image(i)
+                    exit(0)
             src.fill('#000000')
         
+        # update current image
+        current_img.update(i)
+        mut_str = lerp(1-(i/n_iter), mut_str_range[1], mut_str_range[0])
+
         # mutate
-        mut_str = lerp(i/n_iter, 0.005, 0.02)
-        accept = lerp(i/n_iter, 0.006, 0.00001)
         aux = current_img.clone()
         aux.mutate(mut_str)
 
         # new fitness
         fit_aux = fitness(aux)
 
-        if fit_aux <= fit:
+        # decide whether to accept the new image or not
+        if fit < fit_aux:
             current_img = aux
             fit = fit_aux
-        elif random.random() <= accept:
-            current_img = aux
-            fit = fit_aux
-        pygame.display.update()
         
-        #clock.tick(1000)
-        j += 1
-        if j%500 == 0 and config['verbose']:
-            print(f"iteration {j}: {fit}")
-    current_img.render()
+        # display the current image
+        if config['display']:
+            aux.render()
+            pygame.display.update()
+        
+        # show info about the fitness
+        if config['verbose']:
+            if i%500 == 0:
+                print(f"{i}: {fit}")
+            fit_history[i] = fit
+    
+    if config['verbose']:
+        plt.plot(fit_history)
+        plt.show()
+    
     current_img.save_to_image()
 
 
@@ -98,7 +113,7 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         running = False
-                        current_img.save_to_image("stopped_gen"+str(n_steps)+".png")
+                        current_img.save_to_image(n_steps)
                         exit(0)
                 src.fill('#000000')
             
@@ -145,4 +160,11 @@ def simulated_annealing(temp_init=1, temp_end=0.00071, mut_str_range = [0.01, 0.
     current_img.save_to_image()
 
 if __name__ == '__main__':
-    simulated_annealing(1, 0.00071, [0.01, 0.001], 0.93)
+    alg = config['algorithm']
+
+    if alg == 'one_plus_one':
+        oneplusone(3000000)
+    elif alg == 'sim_annealing':
+        simulated_annealing(1, 0.00071, [0.01, 0.001], 0.93)
+    else:
+        simulated_annealing(1, 0.00071, [0.01, 0.001], 0.93)
