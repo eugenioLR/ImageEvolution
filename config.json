@@ -3,11 +3,19 @@
     "img_height": 64,
     "screen_width": 600,
     "screen_height": 600,
-    "reference_img1": "references/Pepe.png",
+    "reference_img1": "references/dog.png",
     "reference_img2": "references/Beagle_mirror.jpg",
-    "img_init": "black",
+    "img_init": "random",
+
     "display": true,
     "verbose": true,
     "method": "pixels",
-    "algorithm": "one_plus_one"
+
+    "algorithm": "DE",
+
+    "stop_cond": "time",
+    "max_steps": 60000,
+    "max_evaluations": 40000,
+    "max_time": 400.0,
+    "fitness_target": 0.675
 }

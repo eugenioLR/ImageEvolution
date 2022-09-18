@@ -26,7 +26,7 @@ if config['display']:
     pygame.display.set_caption("Evo graphics")
 
 def clamp_arr(a, minim, maxim):
-    return np.minimum(np.maximum(a, minim), maxim)
+    return np.clip(a, minim, maxim)
 
 def clamp(a, minim, maxim):
     return min(max(a, minim), maxim)
@@ -101,12 +101,12 @@ class PixelImage(ImgApprox):
 
         # generate mask
         mask_small = np.random.rand(sizeX//block_sizeX+1, sizeY//block_sizeY+1, 3) < 0.5
-        mask = np.zeros([sizeX, sizeY, 3])
+        mask = np.zeros([block_sizeX*(sizeX//block_sizeX+1),block_sizeY*(sizeY//block_sizeY+1), 3])
         for i in range(3):
-            mask_expand = np.kron(mask_small[:,:,i], np.ones([block_sizeX, block_sizeY]))
-            mask_expand = np.roll(mask_expand, -random.randint(0, block_sizeX), axis=0)
-            mask_expand = np.roll(mask_expand, -random.randint(0, block_sizeY), axis=1)
-            mask[:, :, i] = mask_expand[:sizeX, :sizeY]
+            mask[:, :, i] = np.kron(mask_small[:,:,i], np.ones([block_sizeX, block_sizeY]))
+            mask[:, :, i] = np.roll(mask[:, :, i], -random.randint(0, block_sizeX), axis=0)
+            mask[:, :, i] = np.roll(mask[:, :, i], -random.randint(0, block_sizeY), axis=1)
+        mask = mask[:sizeX, :sizeY, :]
     
         # get half of the image from each parent
         other_data = img_approx.img_array()
@@ -126,7 +126,7 @@ class PixelImage(ImgApprox):
         block_sizeX = random.randint(1, sizeX)
         block_sizeY = random.randint(1, sizeY)
         
-        noise = np.ones([(sizeX//block_sizeX + 1)*block_sizeX, (sizeX//block_sizeY + 1)*block_sizeY, 3])
+        noise = np.ones([block_sizeX*(sizeX//block_sizeX + 1), block_sizeY*(sizeX//block_sizeY + 1), 3])
         noise_blocks = np.random.normal(0, strength, [sizeX//block_sizeX+1, sizeY//block_sizeY+1, 3]) * 255
         for i in range(3):
             mask = np.random.random([block_sizeX, block_sizeY]) < strength*40
